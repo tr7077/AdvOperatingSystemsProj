@@ -61,7 +61,7 @@ int main(int argc, char **argv){
     close(fd);
     free(childPids);
     sem_close(semaphore);
-	sem_unlink("sem");
+    sem_unlink("sem");
 
     return 0;
 }
