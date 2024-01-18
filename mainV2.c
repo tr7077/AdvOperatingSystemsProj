@@ -82,7 +82,7 @@ int main(int argc, char **argv){
     if(getpid() == parentPid){
         //singnal
         signal(SIGTSTP, (void (*)(int))kill_children);
-        sleep(5);
+        //sleep(5);
         // close unecessary pipes
         for(int i=0; i<proccesses; i++){
             close(children[i].toChild[READ]);
