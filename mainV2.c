@@ -16,8 +16,8 @@
 
 size_t extractName(const char* src, char* dest);
 int isDataAvailable(int fd);
-void self_term(int sig);
-void kill_children(int sig);
+void self_term(int signum);
+void kill_children(int signum);
 void closeAllResources();
 
 struct child{
@@ -81,8 +81,8 @@ int main(int argc, char **argv){
     // father code
     if(getpid() == parentPid){
         //singnal
-        signal(SIGINT, (void (*)(int))kill_children);
-        //sleep(5);
+        signal(SIGTSTP, (void (*)(int))kill_children);
+        sleep(5);
         // close unecessary pipes
         for(int i=0; i<proccesses; i++){
             close(children[i].toChild[READ]);
@@ -119,7 +119,7 @@ int main(int argc, char **argv){
     }
     else{   // child code
         // signal
-        signal(SIGTERM, (void (*)(int))self_term);
+        signal(SIGTSTP, (void (*)(int))self_term);
         // close unecessary pipes
         for(int i=0; i<proccesses; i++){
             if(getpid() == children[i].pid){
@@ -166,14 +166,14 @@ size_t extractName(const char* src, char* dest){
 }
 
 int isDataAvailable(int fd){
-    // set of fds
+    // dataset of fds
     fd_set read_fds;
 
     struct timeval timeout;
 
-    // set init
+    // dataset init
     FD_ZERO(&read_fds);
-    // adds fd to set
+    // add fd to set
     FD_SET(fd, &read_fds);
 
     // return immidiately with no delay
@@ -190,15 +190,18 @@ int isDataAvailable(int fd){
     return FD_ISSET(fd, &read_fds);
 }
 
-void self_term(int sig){
-    printf("I am a child.. Goodbye!");
+void self_term(int signum){
+    closeAllResources();
+    printf("I am a child.. Goodbye!\n");
     exit(0);
 }
 
-void kill_children(int sig){
-    kill(-1, SIGTERM);
+void kill_children(int signum){
+    for(int i=0; i<proccesses; i++){
+        kill(children[i].pid, SIGTERM);
+    }
     closeAllResources();
-    printf("Father terminating..");
+    printf("Father terminating..\n");
     exit(0);
 }
 
