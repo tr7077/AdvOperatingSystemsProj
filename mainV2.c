@@ -120,6 +120,7 @@ int main(int argc, char **argv){
     else{   // child code
         // signal
         signal(SIGTSTP, (void (*)(int))self_term);
+        //sleep(5);
         // close unecessary pipes
         for(int i=0; i<proccesses; i++){
             if(getpid() == children[i].pid){
@@ -198,7 +199,7 @@ void self_term(int signum){
 
 void kill_children(int signum){
     for(int i=0; i<proccesses; i++){
-        kill(children[i].pid, SIGTERM);
+        waitpid(children[i].pid, NULL, 0);    
     }
     closeAllResources();
     printf("Father terminating..\n");
